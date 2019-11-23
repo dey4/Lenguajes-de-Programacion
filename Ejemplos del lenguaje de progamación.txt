@@ -1,0 +1,91 @@
+//Programa: Crear un triangulo con asterizcos
+
+definir I entero;
+definir J entero;
+definir Tamaño entero;
+
+Tamaño <- 7;
+I <- 1;
+
+mientras(I <= Tamaño)
+	
+	definir Espacios entero;
+	Espacios <- Tamaño-I;
+	
+	definir K entero;
+	K <- 0;
+		
+	repetir
+		
+		K <- K + 1;
+		imprimir " ";
+	
+	hasta(K >= Espacios);
+	
+
+	J <- 0;
+	definir Ancho = (2*I)-1;
+
+	mientras(J < Ancho)
+
+		imprimir "*";
+		J <- I+1;
+
+	repetir;
+	imprimir "\n";
+
+	I <- I+1;
+
+repetir;'
+
+/*Resultado:
+
+      *
+     ***
+    *****
+   *******
+  *********
+ ***********
+*************
+
+*/
+
+//Programa cuestionario
+
+definir Nombre cadena;
+definir Pregunta1 cadena;
+definir Pregunta2 cadena;
+definir Pregunta3 cadena;
+definir Pregunta4 cadena;
+
+imprimir "Ingrese su nombre: ";
+leer Nombre;
+
+imprimir "Cual es su materia preferida: ";
+leer Pregunta1;
+
+imprimir "Que color prefiere Rojo o Azul [R/A]: "
+leer Pregunta2;
+
+si(pregunta2=="R"||pregunta2=="r")hacer
+
+	imprimir "De que piensa trabajar cuando se gradue de la universidad: ";
+	leer Pregunta3;
+
+sino si(pregunta2=="A"||pregunta2=="a")hacer
+
+	imprimir "A que edad programo su primer Hola mundo: ";
+	leer Pregunta4;
+
+sino
+
+	imprimir "Respuesta no valina"
+
+finsi;
+
+imprimir "Gracias por su colaboracion "
+imprimir Nombre
+
+
+
+
