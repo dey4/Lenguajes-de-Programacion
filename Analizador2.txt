@@ -1,0 +1,211 @@
+%{
+        #include <stdio.h>
+        #include <string.h>
+        #include "analizador.tab.h"
+
+        FILE* salida;
+        int counter = 1, i = 0;
+        int error = 0;
+
+        void onError();
+        void endError();
+%}
+
+SIGNO "+"|"-"
+NUMERO [0-9]|0[xX][0-9a-fA-F]+
+SALTO   [\n]
+COMILLAS '"'
+COMENTARIOSIMPLE "//"
+COMENTARIOMULTILINEA "/*"
+COMENTARIOFINAL "*/"
+OPERADORLOGICO ">"|"<"|"<="|">="|"||"|"&&"|"!="|"=="|"!"
+OPERADORARITMETICO "+"|"-"|"*"|"/"|"%"|"++"|"--"|"&"|"|"|"~"|"^"|"<<"|">>"|"<<="|">>="
+OPERADORASIGNACION "="|"+="|"-="|"*="|"/="|"%="|"&="|"|="|"^="
+OPERADORFLECHA "<-"
+OPERADORPUNTO "."
+PALABRA [^"]
+CIDENTIFICADOR [a-zA-Z\_]
+IDENTIFICADOR [a-zA-Z\_0-9]
+
+
+RESERVADA "erm....eto..."
+OPERADOR "y aqui lo mismo..."
+
+IL [\"\<]
+FL [\>\"]
+
+%x CADENA
+%x COMENS
+%X COMENM
+
+%%
+
+{COMENTARIOSIMPLE}      {
+                        BEGIN(COMENS);
+						            endError();
+                        }
+
+<COMENS>{SALTO}         {
+                        ++counter;
+                        BEGIN(INITIAL);
+                        /* Comentatio ignorado */
+                        }
+
+<COMENS>[^\n]{1}      	{ /* Comentario ignorado */ }
+
+{COMENTARIOMULTILINEA}  {
+                        BEGIN(COMENM);
+						            endError();
+                        }
+
+<COMENM>{SALTO}         {
+                        ++counter;
+                        }
+
+<COMENM>{COMENTARIOFINAL}       {
+                                BEGIN(INITIAL);
+                                }
+
+<COMENM>[^\n{COMENTARIOFINAL}]{1}      	{ /* Comentario ignorado */ }
+
+{NUMERO}+        {
+                 fprintf(salida, "Analizador lexico, linea %d, ctc entera: %s \n", counter, yytext);
+						     endError();
+                 return CONSTANTE_ENTERA;
+                 }
+
+{NUMERO}*[.]?{NUMERO}+[eE]?{SIGNO}?{NUMERO}*    {
+                                                fprintf(salida, "LEXER(%d). Constante real: %s \n", counter, yytext);
+						                                    endError();
+                                                return CONSTANTE_REAL;
+                                                }
+
+"si"                       { fprintf(salida, "LEXER(%d). Palabra reservada: %s\n", counter, yytext); endError(); return SI; }
+"sino"                     { fprintf(salida, "LEXER(%d). Palabra reservada: %s\n", counter, yytext); endError(); return SINO; }
+"hacer"                    { fprintf(salida, "LEXER(%d). Palabra reservada: %s\n", counter, yytext); endError(); return HACER; }
+"finsi"                    { fprintf(salida, "LEXER(%d). Palabra reservada: %s\n", counter, yytext); endError(); return FINSI; }
+"flotante"                 { fprintf(salida, "LEXER(%d). Palabra reservada: %s\n", counter, yytext); endError(); return FLOTANTE; }
+"entero"                   { fprintf(salida, "LEXER(%d). Palabra reservada: %s\n", counter, yytext); endError(); return ENTERO; }
+"caracter"                 { fprintf(salida, "LEXER(%d). Palabra reservada: %s\n", counter, yytext); endError(); return CARACTER; }
+"booleano"                 { fprintf(salida, "LEXER(%d). Palabra reservada: %s\n", counter, yytext); endError(); return BOOLEANO; }
+"definir"                  { fprintf(salida, "LEXER(%d). Palabra reservada: %s\n", counter, yytext); endError(); return DEFINIR; }
+"mientras"                 { fprintf(salida, "LEXER(%d). Palabra reservada: %s\n", counter, yytext); endError(); return MIENTRAS; }
+"repetir"                  { fprintf(salida, "LEXER(%d). Palabra reservada: %s\n", counter, yytext); endError(); return REPETIR; }
+"hasta"                    { fprintf(salida, "LEXER(%d). Palabra reservada: %s\n", counter, yytext); endError(); return HASTA; }
+"verdadero"                { fprintf(salida, "LEXER(%d). Palabra reservada: %s\n", counter, yytext); endError(); return VERDADERO; }
+"falso"                    { fprintf(salida, "LEXER(%d). Palabra reservada: %s\n", counter, yytext); endError(); return FALSO; }
+
+{RESERVADA}             {
+                        fprintf(salida, "Analizador lexico, linea %d, palabra reservada: %s\n \n", counter, yytext);
+						            endError();
+                        }
+
+{DELIMITADOR}           {
+                        fprintf(salida, "Analizador lexico, linea %d, delimitador: %s \n", counter, yytext);
+						            endError();
+                        // Hay que retornar delimitadores separados?
+                        }
+
+{OPERADORLOGICO}        { fprintf(salida, "LEXER(%d). Operador logico: %s\n", counter, yytext); endError(); return(OPERADORLOGICO); }
+
+{OPERADOR}*             {
+                        fprintf(salida, "Analizador lexico, linea %d, operador %s \n", counter, yytext);
+						            endError();
+                        return OPERADOR;
+                        }
+
+{OPERADORLOGICO}        { fprintf(salida, "LEXER(%d). Operador logico: %s\n", counter, yytext); endError(); return OPLOGICO; }
+{OPERADORARITMETICO}    { fprintf(salida, "LEXER(%d). Operador logico: %s\n", counter, yytext); endError(); return OPARITMETICO; }
+{OPERADORASIGNACION}    { fprintf(salida, "LEXER(%d). Operador logico: %s\n", counter, yytext); endError(); return OPASIGNACION; }
+{OPERADORFLECHA}        { fprintf(salida, "LEXER(%d). Operador logico: %s\n", counter, yytext); endError(); return FLECHA; }
+{OPERADORPUNTO}         { fprintf(salida, "LEXER(%d). Operador logico: %s\n", counter, yytext); endError(); return PUNTO; }
+{OPERADORALMOHADILLA}   { fprintf(salida, "LEXER(%d). Operador logico: %s\n", counter, yytext); endError(); return ALMOHADILLA; }
+
+{SALTO}                 {
+                        ++counter;
+						            endError();
+                        }
+
+{CIDENTIFICADOR}?{IDENTIFICADOR}*       {
+                                        fprintf(salida, "Analizador lexico, linea %d, identificador: %s\n", counter, yytext);
+					                              endError();
+                                        return IDENTIFICADOR;
+                                        }
+
+{IL}{PALABRA}{FL}       {
+                        fprintf(salida, "Analizador lexico, linea %d, librería: %s\n", counter, yytext);
+						            endError();
+                        return LIBRERIA;
+                        }
+
+{COMILLAS}\<			      {
+                        fprintf(salida, "Analizador lexico, linea %d, librería: %s", counter, yytext);
+						            endError();
+                        BEGIN(CADENA);
+                        }
+
+{COMILLAS}              {
+                        fprintf(salida, "Analizador lexico, linea %d, cadena: %s", counter, yytext);
+						            endError();
+                        BEGIN(CADENA);
+                        }
+
+
+<CADENA>{BARRA}{SALTO}  {
+                        fprintf(salida, "%s", yytext);
+                        ++counter;
+                        }
+
+
+<CADENA>{PALABRA}       {
+                        fprintf(salida, "%s", yytext);
+                        }
+
+<CADENA>{BARRA}{COMILLAS}       {
+                                fprintf(salida, "%s", yytext);
+                                }
+
+<CADENA>{COMILLAS}      {
+                        fprintf(salida, "%s \n", yytext);
+                        BEGIN(INITIAL);
+                        }
+
+[^ \n\t]				{
+							  onError();
+						    }
+
+[ \t]					{ /* Ignoramos espacios y tabulaciones sueltas */ }
+
+%%
+
+void onError()
+{
+	if (!error) {
+		fprintf(salida, "linea %d, ERROR: %s", counter, yytext);
+	}
+	else {
+		fprintf(salida, "%s", yytext);
+	}
+
+	error = 1;
+}
+
+void endError()
+{
+	if (error) {
+		fprintf(salida, "\n");
+		error = 0;
+	}
+}
+
+int yywrap()
+{
+        return 1;
+}
+
+int main(int arcg, char* argv[])
+{
+        yyin = fopen(argv[1],"r");
+        salida = fopen("resultado.txt","w");
+        while(yylex());
+}
